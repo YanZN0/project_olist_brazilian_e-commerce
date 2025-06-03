@@ -3,11 +3,12 @@ import os
 
 
 
-def extracting_and_reading_csv(caminho):
+def extracting_and_reading_csv():
     '''
     Essa função tem como objetivo ler arquivos CSV do caminho recebido,
     trabalha com multiplos CSVs fazendo uma separação individual através de um dict de dataframes.
     '''
+    caminho = os.path.join('/usr', 'local', 'airflow', 'include', 'datasets')
     dataframes = {}             
     for arquivos in os.listdir(caminho):
         if arquivos.endswith('.csv'):
