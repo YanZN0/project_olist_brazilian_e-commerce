@@ -1,11 +1,14 @@
 import pandas as pd
 import numpy as np
+import pyarrow as pa
 
-def rename_colums(dict_dfs):
+def cleaning_and_transformation_raw_data(dict_dfs):
     """
-    Essa função contém o objetivo de receber nossas tabelas CSV, em formato dataframe,
-    e renomear colunas para nomes geram mais clareza, interpretação.
+    Essa função recebe nossas tabelas CSVs com dados brutos, em formato de um dicionário de Dataframes.
+    Executamos as principais transformações e limpezas dos dados brutos, com o objetivo de gerar
+    tabelas com clareza e fácil interpretação visando fornecer uma estrutura aprimorada para ánalises.
     """
+# Abaixo começa as transformações em nomes de colunas, essas transformações foram feitas com o objetivo de gerar mais clareza, interpretação e nomes que geram mais informação sobre os dados que a coluna contém.
 
     if 'olist_customers_dataset' in dict_dfs:
         dict_dfs['olist_customers_dataset'] = dict_dfs['olist_customers_dataset'].rename(columns={
@@ -96,15 +99,26 @@ def rename_colums(dict_dfs):
         # Coluna excluida, tomei está decisão pois os dados presentes em outras tabelas apenas usam "product_category_name", a outra coluna em sí não agregava com dados importantes nenhuma tabela.
         dict_dfs['product_category_name_translation'] = dict_dfs['product_category_name_translation'].drop(columns=["product_category_name_english"])
 
-    return dict_dfs
-
-def correcting_NaN_values(dict_dfs):
-
-    for name, df in dict_dfs.items():
+    for name, df in dict_dfs.items():   # Obtendo todos os Dataframes do dicionário através de um loop FOR com chave = name [nome do dataframe dentro do dicionário]; valor = Dataframe [Tabelas CSV sendo Dataframes]. Podendo trabalhar com eles tanto de forma invidual ou de forma total.
         
-        values_NaN = df.replace(np.nan, 'INVALID_VALUE', inplace=True)
+        for col in df.columns:
 
+            if df[col].dtypes == 'float64':
+               df[col] = df[col].fillna(0) 
+                
+            if df[col].dtypes == 'object':
+                df[col] = df[col].fillna('MISSING_VALUE')
+            
+            
+    # Inplace=True. Essa solução evita que eu tenha que criar dicionários vázios para armazenar novas atualizações do dataframe
+        
+        invalid_values = df.apply(lambda x: x.replace('""', '', inplace=True))   # Removendo "aspas" de dados das colunas, evitando que dados inválidos no futuro sejam carregados no banco de dados.
+        
     return dict_dfs
+
+
+
+
 
     
     
