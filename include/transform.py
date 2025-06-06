@@ -101,19 +101,54 @@ def cleaning_and_transformation_raw_data(dict_dfs):
 
     for name, df in dict_dfs.items():   # Obtendo todos os Dataframes do dicionário através de um loop FOR com chave = name [nome do dataframe dentro do dicionário]; valor = Dataframe [Tabelas CSV sendo Dataframes]. Podendo trabalhar com eles tanto de forma invidual ou de forma total.
         
-        for col in df.columns:
+        for col in df.columns:  # Aqui obtenho todas as colunas de todos os Dataframes, sendo as tabelas que estamos transformando.
 
-            if df[col].dtypes == 'float64':
-               df[col] = df[col].fillna(0) 
+            if df[col].dtypes == 'float64':     # Esse IF foi criado para ser um filtro, nesse código de filtro tenho objetivo de lidar com valores NaN mas em colunas do tipo float. Com o comando fillna() que sobrescreve valores NaN, eu fiz com que os dados inválidos que fossem NaN dentro da coluna virassem o valor 0.               
+                df[col] = df[col].fillna(0) 
                 
+
+# Esses dois IFs são um tipo de filtro, eles lindam com valores diferentes, acontece que primeiro eu fiz com que todos os valores NaN fossem "MISSING_VALUE", mas colunas de tipo float ou int gera erro e a transformação é abortada. A solução encontrada foram os IFs trabalhando com tipos diferentes de colunas que, cada valor inválido e sobrescrito para valor que a coluna pode suportar.
+
+
             if df[col].dtypes == 'object':
-                df[col] = df[col].fillna('MISSING_VALUE')
+                df[col] = df[col].fillna('MISSING_VALUE')   # Esse outro filtro foi para dados inválidos NaN mas que são strings, para lidar com esses valores inválidos e não excluir linhas que podem ser importantes, minha solução foi com o comando fillna() novamente sobrescrever esses valores NaN para "MISSING_VALUE".
             
             
-    # Inplace=True. Essa solução evita que eu tenha que criar dicionários vázios para armazenar novas atualizações do dataframe
+        # Inplace=True. Essa solução evita que eu tenha que criar dicionários vázios para armazenar novas atualizações do dataframe
         
         invalid_values = df.apply(lambda x: x.replace('""', '', inplace=True))   # Removendo "aspas" de dados das colunas, evitando que dados inválidos no futuro sejam carregados no banco de dados.
         
+
+# Logo após todas as transformações com objetivos de deixar tabelas mais claras, interpretáveis e tabelas limpas, eu tive a decisão de essas tabelas depois das transformações dos dados salvar em arquivos .parquet proporcionando melhor desempenho ao processamento de grandes conjuntos de dados, otimização, e redução de custo de armazenamento.
+
+        if name == 'olist_customers_dataset' in dict_dfs:
+            df.to_parquet(f"/usr/local/airflow/include/transformed_datasets/{name}.parquet", index=False)
+
+# Para fazer o salvamento de cada tabela sendo individualmente e não sendo o dicionário de dataframes inteiro, eu utilizei comandos IF. Para cada nome de Dataframe (Tabela), salvar em .parquet na pasta transformed_dataset.
+
+
+        if name == 'olist_geolocation_dataset' in dict_dfs:
+            df.to_parquet(f"/usr/local/airflow/include/transformed_datasets/{name}.parquet", index=False)
+
+        if name == 'olist_order_payments_dataset' in dict_dfs:
+            df.to_parquet(f"/usr/local/airflow/include/transformed_datasets/{name}.parquet", index=False)
+
+        if name == 'olist_order_reviews_dataset' in dict_dfs:
+            df.to_parquet(f"/usr/local/airflow/include/transformed_datasets/{name}.parquet", index=False)
+
+        if name == 'olist_orders_dataset' in dict_dfs:
+            df.to_parquet(f"/usr/local/airflow/include/transformed_datasets/{name}.parquet", index=False)
+
+        if name == 'olist_products_dataset' in dict_dfs:
+            df.to_parquet(f"/usr/local/airflow/include/transformed_datasets/{name}.parquet", index=False)
+
+        if name == 'olist_sellers_dataset' in dict_dfs:
+            df.to_parquet(f"/usr/local/airflow/include/transformed_datasets/{name}.parquet", index=False)
+
+        if name == 'product_category_name_translation' in dict_dfs:
+            df.to_parquet(f"/usr/local/airflow/include/transformed_datasets/{name}.parquet", index=False)
+
+
     return dict_dfs
 
 
